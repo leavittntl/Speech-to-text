@@ -32,7 +32,7 @@ if uploaded_file is not None:
     
     with st.spinner('Transcribing...'):
         # Perform transcription
-        transcription_result = whisper_transcriber(audio_np, sampling_rate=sample_rate.item())
+        transcription_result = whisper_transcriber(audio_np, sampling_rate=sample_rate)
         transcription_text = transcription_result["text"]
 
     # Show the transcription
