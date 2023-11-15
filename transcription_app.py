@@ -1,5 +1,6 @@
 import streamlit as st
 from transformers import pipeline
+import torchaudio
 from io import BytesIO
 
 # Streamlit page configuration
@@ -21,10 +22,17 @@ uploaded_file = st.file_uploader("Choose an audio file", type=['wav', 'mp3', 'og
 
 if uploaded_file is not None:
     st.audio(uploaded_file)
-    audio_data = BytesIO(uploaded_file.getvalue())
+    audio_data_bytes = BytesIO(uploaded_file.getvalue())
+    
+    # Load the audio file as a waveform
+    waveform, sample_rate = torchaudio.load(audio_data_bytes)
+    
+    # Convert the waveform tensor to a NumPy array
+    audio_np = waveform.numpy()
+    
     with st.spinner('Transcribing...'):
         # Perform transcription
-        transcription_result = whisper_transcriber(audio_data)
+        transcription_result = whisper_transcriber(audio_np, sampling_rate=sample_rate.item())
         transcription_text = transcription_result["text"]
 
     # Show the transcription
