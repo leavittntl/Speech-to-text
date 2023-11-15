@@ -1,42 +1,48 @@
 import streamlit as st
-from transformers import pipeline
-import torchaudio
-from io import BytesIO
+import openai
 
-# Streamlit page configuration
-st.set_page_config(
-    page_title="Audio Transcription with Whisper",
-    page_icon="🎙️",
-    layout="wide"
-)
+# Placeholder for API key input
+api_key_placeholder = "<Enter your OpenAI API key>"
 
-# Title and description
-st.title("Audio Transcription with Whisper")
-st.write("This app transcribes audio files using the Whisper model from Hugging Face.")
+# Streamlit app
+def main():
+    st.title('Audio Transcription with OpenAI Whisper')
 
-# Load transcription model
-whisper_transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-tiny")
+    # API key input
+    api_key = st.text_input("OpenAI API Key", value=api_key_placeholder)
+        
+    if api_key == api_key_placeholder or not api_key:
+        st.warning("Please enter a valid OpenAI API key to proceed.")
+        st.stop()
+    else:
+        openai.api_key = api_key  # Set the API key for OpenAI
 
-# File upload
-uploaded_file = st.file_uploader("Choose an audio file", type=['wav', 'mp3', 'ogg', 'flac'])
+    # Audio file uploader
+    audio_file = st.file_uploader("Upload an audio file", type=['mp3', 'wav', 'ogg', 'webm'])
 
-if uploaded_file is not None:
-    st.audio(uploaded_file)
-    audio_data_bytes = BytesIO(uploaded_file.getvalue())
-    
-    # Load the audio file as a waveform
-    waveform, sample_rate = torchaudio.load(audio_data_bytes)
-    
-    # Convert the waveform tensor to a NumPy array
-    audio_np = waveform.numpy()
-    
-    with st.spinner('Transcribing...'):
-        # Perform transcription
-        transcription_result = whisper_transcriber(audio_np, sampling_rate=sample_rate)
-        transcription_text = transcription_result["text"]
+    if audio_file is not None:
+        # Display an audio player widget
+        st.audio(audio_file, format='audio.mp3', start_time=0)
 
-    # Show the transcription
-    st.subheader("Transcript")
-    st.write(transcription_text)
-else:
-    st.warning("Please upload an audio file to transcribe.")
+        # Confirm before transcribing
+        if st.button('Transcribe Audio'):
+            try:
+                # Show a message while the transcription is being processed
+                with st.spinner('Transcribing...'):
+                    # Call the transcribe function
+                    transcript_response = openai.Audio.transcribe("whisper-1", audio_file)
+
+                    # Check the response for transcription result
+                    if transcript_response:
+                        transcript = transcript_response.get('text', 'No transcription found.')
+                        # Display the transcription
+                        st.success('Transcription completed:')
+                        st.write(transcript)
+                    else:
+                        st.error('No transcription response was received.')
+            except Exception as e:
+                # If an error occurs, display the error message
+                st.error(f'An error occurred during transcription: {e}')
+
+if __name__ == "__main__":
+    main()
