@@ -14,7 +14,7 @@ st.title("Audio Transcription with Whisper")
 st.write("This app transcribes audio files using the Whisper model from Hugging Face.")
 
 # Load transcription model
-whisper_transcriber = pipeline("automatic-speech-recognition", model="distil-whisper/tinier-v2")
+whisper_transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-tiny")
 
 # File upload
 uploaded_file = st.file_uploader("Choose an audio file", type=['wav', 'mp3', 'ogg', 'flac'])
