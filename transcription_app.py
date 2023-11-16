@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # Placeholder for API key input
-api_key_placeholder = "<Enter your OpenAI API key>"
+api_key_placeholder = "OpenAI API key"
 
 # Streamlit app
 def main():
